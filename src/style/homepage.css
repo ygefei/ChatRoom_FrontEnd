@@ -1,0 +1,128 @@
+.root {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    overflow: hidden;
+    
+}
+
+header {
+    background-color: #D36E35;
+    height: 1vh;
+    width: 100vw;
+}
+
+.body {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+}
+
+div .left {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    border-right-style: solid;
+    border-right-color: #D36E35;
+    border-width: 1px;
+}
+
+div .leftHeader {
+    height: 15vh;
+    border-bottom-color: #DC8C5F;
+    border-bottom-style: solid;
+    border-width: 1px;
+}
+
+div .center{
+    display: flex;
+    flex: 2.5;
+    flex-direction: column;
+}
+
+div .right{
+    display: flex;
+    flex: 0.8;
+    flex-direction: column;
+    border-left-style: solid;
+    border-left-color: #D36E35;
+    border-width: 1px;
+}
+
+.left h2 {
+    color: #D36E35;
+    font-family: Avenir;
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 36px;
+    text-align: center;
+    margin-bottom: 10px
+}
+
+div .searchAdd {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+div .rightHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    height: 15vh;
+    border-bottom-color: #DC8C5F;
+    border-bottom-style: solid;
+    border-width: 1px;
+}
+
+div .profile {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 2;
+    background-color: #DC8C5F;
+    padding: 0 10px;
+}
+
+h3 {
+    color:#FFFFFF
+}
+
+div .rightFooter {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-top-color: #DC8C5F;
+    border-top-style: solid;
+    height: 6vh;
+    border-width: 1px;
+}
+
+div .centerHeader {
+    height: 15vh;
+    border-bottom-color: #DC8C5F;
+    border-bottom-style: solid; 
+    border-width: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centerHeader h2 {
+    color: #707070;
+}
+
+div .centerFooter {
+    border-top-color: #DC8C5F;
+    border-top-style: solid; 
+    border-width: 1px;
+    justify-self: flex-end;
+    height: 6vh;
+}

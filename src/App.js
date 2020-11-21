@@ -1,24 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
+import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
+import Navigation from './router';
+import { Provider } from 'react-redux';
+import store from './store/store';
+import WebSocketProvider from './websocket';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      light: '#DC8C5F',
+      main: '#D36E35',
+      accent: "#3599D3"
+    },
+    secondary: {
+      light: '#D2D2D2',
+      main: '#1F1F1F',
+      dark: '#707070',
+    },
+  },
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <WebSocketProvider>
+        <ThemeProvider theme={theme}>
+          <Navigation />
+        </ThemeProvider>
+      </WebSocketProvider>
+    </Provider>
   );
 }
 

@@ -1,0 +1,19 @@
+{
+    "brandColor": {
+        "primaryLighter": "#DC8C5F",
+        "primary": "#D36E35",
+        "accent": "#3599D3"
+    },
+    "neutralColor": {
+        "black": "#1F1F1F",
+        "dark": "#707070",
+        "light": "#D2D2D2",
+        "background": "#F2F2F2",
+        "white": "#FFFFFF"
+    },
+    "functionalColor": {
+        "error": "#C13F30",
+        "warning": "#E5AF51",
+        "success": "#4CA315"
+    }
+}

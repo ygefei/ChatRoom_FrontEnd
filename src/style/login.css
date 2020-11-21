@@ -1,0 +1,47 @@
+div .root {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+}
+div .container {
+    width: 397px;
+    height: 577px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    border-radius: 5px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #D36E35;
+}
+
+h1 {
+    font-family: Avenir;
+    font-weight: 800;
+    font-size: 48px;
+    color: #D36E35
+}
+
+p {
+    font-family: Avenir;
+    font-weight: 300;
+    font-size: 15px;
+    color: #787878
+}
+
+p>span {
+    color: #3599D3;
+    text-decoration: underline;
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
