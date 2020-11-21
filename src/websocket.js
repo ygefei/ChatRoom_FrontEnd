@@ -15,6 +15,15 @@ export default ({ children }) => {
     const dispatch = useDispatch();
     const store = useStore();
 
+    const socketConnect = () => {
+        socket = io.connect(WS_BASE);
+    }
+
+    //socket init
+    const socketInit = (token) => {
+        socket.emit("init", token);
+    }
+
     //send message
     const sendMessage = (room_id, message) => {
         const payload = {
@@ -26,12 +35,12 @@ export default ({ children }) => {
         dispatch(updateCurrRoom(payload));
     }
 
-    //join room
-    const joinRoom = async (room_id) => {
+     //join room
+    const joinRoom = async (room_id,userToken) => {
         try {
-            const response = await myjoinRoom(room_id);
+            const response = await myjoinRoom(room_id,userToken);
             dispatch(response);
-            const roomResponse = await loadRoom(room_id);
+            const roomResponse = await loadRoom(room_id,userToken);
             dispatch(roomResponse);
             socket.emit("join", JSON.stringify(room_id));
         }catch(error){
@@ -39,24 +48,22 @@ export default ({ children }) => {
         }    
     }
 
-    //leave room
-    const leaveRoom = (room_id) => {
+     //leave room
+     const leaveRoom = (room_id) => {
         dispatch(myleaveRoomList);
         dispatch(myleaveRoomSelected);
         socket.emit("leave", JSON.stringify(room_id));
     }
 
-
-    if (!socket) {
-        socket = io.connect(WS_BASE);
-
+    if (socket) {
+    
         //listen message
         socket.on("message", (data) => {
             const payload = JSON.parse(data);
             const room_id = payload.room_id;
             const message = payload.message;
             if(room_id === store.selectedRoomReducer.room_id){
-                dispatch(updateSelectedRoomLog(message))
+                dispatch(updateSelectedRoomLog(message));
                 dispatch(updateCurrRoom(payload));
             }else{
                 dispatch(updateRoomListLog(payload));
@@ -82,13 +89,14 @@ export default ({ children }) => {
                 dispatch(otherLeaveRoom(username));
             }
         })
+    }
 
-        ws = {
-            socket: socket,
-            sendMessage,
-            joinRoom,
-            leaveRoom
-        }
+    ws = {
+        socketConnect,
+        socketInit,
+        sendMessage,
+        joinRoom,
+        leaveRoom
     }
 
     return (

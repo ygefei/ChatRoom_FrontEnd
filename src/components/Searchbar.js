@@ -5,6 +5,7 @@ import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 import {WebSocketContext} from '../websocket';
+import {useAuth} from '../context';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Searchbar() {
   const classes = useStyles();
   const [joinRoomId, setjoinRoomId] = React.useState();
+  let auth = useAuth();
 
   const ws = useContext(WebSocketContext);
 
@@ -40,7 +42,7 @@ export default function Searchbar() {
         alert("You should input room id!");
         return;
       }
-      await ws.joinRoom(joinRoomId);
+      await ws.joinRoom(joinRoomId,auth.user);
       setjoinRoomId();
   }
 

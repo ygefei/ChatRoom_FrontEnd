@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext}from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import '../style/login.css';
 import TextField from '@material-ui/core/TextField';
@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import {useAuth} from '../context';
 import {useHistory} from "react-router-dom";
 import {login} from '../api';
+
+
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -19,6 +21,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+
+
 export default function Login() {
   const classes = useStyles();
   const [username, setUsername] = React.useState('');
@@ -28,13 +32,14 @@ export default function Login() {
   let history = useHistory();
   let auth = useAuth();
 
+
   const userLogin = async() => {
     try{
       setUsernameError(!username);
       setPassWordError(!password);
       if(username && password){
-        //await login(username,password);
-        auth.signin(() => {
+        const response = await login(username,password);
+        auth.signin(response.token, async() => {
           history.push("/homepage");
         });
       }

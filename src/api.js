@@ -7,14 +7,14 @@ export function login(username, password) {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/login`,
-            baseURL: API_BASE,
             data: {
               username:username,
               password:password
             }
         });
         if(result.status === 200) {
-            resolve();
+            console.log(result.data);
+            resolve(result.data);
         }else{
             reject(new Error(result.statusText));
         }
@@ -40,11 +40,14 @@ export function register(username, password, nickName) {
     });
 }
 
-export function loadHomepage() {
+export function loadHomepage(userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
-            url: `${API_BASE}/homepage`,
+            url:`${API_BASE}/homepage`,
+            data:{
+                token:userToken
+            }
         });
         if(result.status === 200) {
             resolve(result.data);
@@ -54,13 +57,14 @@ export function loadHomepage() {
     });
 }
 
-export function loadSelectedRoomApi(room_id) {
+export function loadSelectedRoomApi(room_id,userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/chatroom/get`,
             data: {
-                room_id:room_id
+                room_id:room_id,
+                token:userToken
               },
             withCredentials: true
         });
@@ -72,11 +76,14 @@ export function loadSelectedRoomApi(room_id) {
     });
 }
 
-export function logout() {
+export function logout(userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
-            method: 'get',
+            method: 'post',
             url: `${API_BASE}/logout`,
+            data:{
+                token:userToken
+            }
         });
         if(result.status === 200) {
             resolve();
@@ -86,14 +93,15 @@ export function logout() {
     });
 }
 
-export function createChatRoom(room_name,profile) {
+export function createChatRoom(room_name,profile,userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/chatroom/create`,
             data: {
               room_name:room_name,
-              profile:profile
+              profile:profile,
+              token:userToken
             }
         });
         if(result.status === 200) {
@@ -105,13 +113,14 @@ export function createChatRoom(room_name,profile) {
     
 }
 
-export function joinChatRoom(room_id) {
+export function joinChatRoom(room_id,userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/chatroom/join`,
             data: {
               room_id:room_id,
+              token:userToken
             }
         });
         if(result.status === 200) {

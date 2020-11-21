@@ -20,6 +20,7 @@ import {useAuth} from '../context';
 import { useSelector, useDispatch } from 'react-redux';
 import {loadRoom,loadPage,readMessage} from '../actions/actions';
 import {WebSocketContext} from '../websocket';
+import {logout} from '../api';
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -73,14 +74,15 @@ export default function Homepage() {
   }
 
   const signOut = () => {
-    auth.signout(() => {
+    auth.signout(async() => {
+        await logout(auth.user);
         history.push("/");
       });
   }
 
   const handleSelectRoom = async(room_id) => {
         try{
-            const response = await loadRoom(room_id);
+            const response = await loadRoom(room_id,auth.user);
             dispatch(response);
             dispatch(readMessage(room_id));
         }catch(error){
@@ -98,9 +100,11 @@ export default function Homepage() {
 
 
   React.useEffect(async() => {
-    const response = await loadPage();
-    dispatch(response.loadUser);
-    dispatch(response.loadRoomlist);
+    ws.socketConnect();
+    ws.socketInit(auth.user);
+    const response = await loadPage(auth.user);
+    dispatch(response.loadUser());
+    dispatch(response.loadRoomlist());
   },[]);
 
   return (
@@ -144,7 +148,6 @@ export default function Homepage() {
                 <Paper className={classes.messageList} elevation={0}>
                     <List>
                         {selectedRoom.chatLogs&&selectedRoom.chatLogs.map(item => {
-                            console.log(item);
                             return(
                                 <Message message={item} user={user.username}/>
                             );

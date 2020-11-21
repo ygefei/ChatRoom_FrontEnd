@@ -30,9 +30,9 @@ export function useAuth() {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
 
-  const signin = cb => {
+  const signin = (token,cb) => {
     return userAuth.signin(() => {
-      setUser("user");
+      setUser(token);
       cb();
     });
   };

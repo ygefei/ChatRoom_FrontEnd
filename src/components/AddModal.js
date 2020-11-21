@@ -9,6 +9,7 @@ import ImageUploader from 'react-images-upload';
 import TextField from '@material-ui/core/TextField';
 import {createRoom, loadRoom} from '../actions/actions';
 import {useDispatch} from 'react-redux';
+import {useAuth} from '../context';
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -26,6 +27,7 @@ export default function AddModal(props) {
   const [error, setError] = React.useState(false);
   const [pictures, setPictures] = React.useState("");
   const {onClose, modalOpen} = props;
+  let auth = useAuth();
 
   const dispatch = useDispatch();
 
@@ -36,8 +38,8 @@ export default function AddModal(props) {
 
   const handleConfirm = async() => {
       try{
-        const room_id = await createRoom(roomName,pictures);
-        const responseRoom = await loadRoom(room_id);
+        const room_id = await createRoom(roomName,pictures,auth.user);
+        const responseRoom = await loadRoom(room_id,auth.user);
         dispatch(responseRoom);
         onClose();
       }catch(error){

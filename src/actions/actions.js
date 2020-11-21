@@ -28,14 +28,14 @@ export function loadSelectedRoom(payload){
     }
 }
 
-export async function loadPage() {
+export async function loadPage(userToken) {
         try{
-            const response = await loadHomepage();
+            const response = await loadHomepage(userToken);
             const user = response.user;
             const roomList = response.chatrooms;
             return {
-                loadUser: loadUser(user),
-                loadRoomlist:loadRoomlist(roomList)
+                loadUser: () => loadUser(user),
+                loadRoomlist:() => loadRoomlist(roomList)
             }
         }catch(error){
             console.log(error);
@@ -43,9 +43,9 @@ export async function loadPage() {
     
 }
 
-export async function loadRoom(room_id){
+export async function loadRoom(room_id,userToken){
     try{
-        const response = await loadSelectedRoomApi(room_id);
+        const response = await loadSelectedRoomApi(room_id,userToken);
         return loadSelectedRoom(response);
     }catch(error){
         console.log(error);
@@ -80,11 +80,11 @@ export function createRoomError(error){
     }
 }
 
-export function createRoom(room_name,profile) {
+export function createRoom(room_name,profile,userToken) {
     return async function (dispatch) {
         dispatch(createRoomRequest());
         try{
-            const response = await createChatRoom(room_name,profile);
+            const response = await createChatRoom(room_name,profile,userToken);
             const payload = {
                 room_id: response.room_id,
                 room_name: room_name,
@@ -116,9 +116,9 @@ export function otherjoinRoom(payload){
     }
 }
 
-export async function myjoinRoom(room_id) {
+export async function myjoinRoom(room_id,userToken) {
     try{
-        const response = await joinChatRoom(room_id);
+        const response = await joinChatRoom(room_id,userToken);
         const payload = {
             room_id: room_id,
             room_name: response.room_name,
