@@ -15,13 +15,13 @@ export default ({ children }) => {
     const dispatch = useDispatch();
     const store = useStore();
 
-    const socketConnect = () => {
-        socket = io.connect(WS_BASE);
-    }
-
-    //socket init
-    const socketInit = (token) => {
-        socket.emit("init", token);
+    //connect
+    const socketConnect = (token) => {
+        socket = io(WS_BASE);
+        socket.on("connect", () => {
+          console.log(socket.connected);
+          socket.emit("init",token);
+        });
     }
 
     //send message
@@ -30,7 +30,7 @@ export default ({ children }) => {
             room_id: room_id,
             message: message
         }
-        socket.emit("message", JSON.stringify(payload));
+        socket.emit("message", payload);
         dispatch(updateSelectedRoomLog(message));
         dispatch(updateCurrRoom(payload));
     }
@@ -42,7 +42,7 @@ export default ({ children }) => {
             dispatch(response);
             const roomResponse = await loadRoom(room_id,userToken);
             dispatch(roomResponse);
-            socket.emit("join", JSON.stringify(room_id));
+            socket.emit("join", room_id);
         }catch(error){
             console.log(error);
         }    
@@ -52,11 +52,14 @@ export default ({ children }) => {
      const leaveRoom = (room_id) => {
         dispatch(myleaveRoomList);
         dispatch(myleaveRoomSelected);
-        socket.emit("leave", JSON.stringify(room_id));
+        socket.emit("leave", room_id);
     }
 
     if (socket) {
-    
+
+        socket.on('connect', () => {
+            console.log(socket.connected);
+        });
         //listen message
         socket.on("message", (data) => {
             const payload = JSON.parse(data);
@@ -68,7 +71,7 @@ export default ({ children }) => {
             }else{
                 dispatch(updateRoomListLog(payload));
             }
-        })
+        });
 
         //listen other join
         socket.on("join", (data) => {
@@ -78,7 +81,7 @@ export default ({ children }) => {
             if(room_id === store.selectedRoomReducer.room_id){
                 dispatch(otherjoinRoom(user));
             }
-        })
+        });
 
         //listen other leave
         socket.on("leave", (data) => {
@@ -88,16 +91,17 @@ export default ({ children }) => {
             if(room_id === store.selectedRoomReducer.room_id){
                 dispatch(otherLeaveRoom(username));
             }
-        })
+        });
     }
 
     ws = {
         socketConnect,
-        socketInit,
         sendMessage,
         joinRoom,
         leaveRoom
     }
+
+    
 
     return (
         <WebSocketContext.Provider value={ws}>

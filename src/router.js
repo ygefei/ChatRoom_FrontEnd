@@ -9,7 +9,6 @@ import Login from './screens/Login';
 import Register from './screens/Register';
 import Homepage from './screens/Homepage';
 import {ProvideAuth, useAuth} from './context';
-import WebSocketProvider from './websocket';
 
 export default function Navigation() {
   return (
@@ -23,7 +22,7 @@ export default function Navigation() {
               <Register />
             </Route>
             <PrivateRoute path="/homepage">
-              <Homepage />
+                  <Homepage />
             </PrivateRoute>
           </Switch>
       </Router>

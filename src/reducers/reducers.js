@@ -33,7 +33,7 @@ import { combineReducers } from 'redux';
 //     selectedChatRoom: {
 //         room_id:1,
 //         room_name:"COMP 426",
-//         chatLogs: [{username,nickname,timestamp,date}],
+//         chatLogs: [{username,nickname,timestamp}],
 //         users:[{nickname,profile}],
 //     }
     
@@ -62,7 +62,7 @@ const roomListReducers = (state = {
 }, action) => {
     switch(action.type) {
         case LOAD_ROOMLIST:
-            const loadList = state.roomList.map(item => {
+            const loadList = action.payload.map(item => {
                 return {
                     ...item,
                     unread:0
@@ -77,7 +77,7 @@ const roomListReducers = (state = {
                 room_id:action.payload.room_id,
                 room_name:action.payload.room_name,
                 profile:action.payload.profile,
-                lastlog: {},
+                last_message: {},
                 unread:0
             };
             return Object.assign({}, state, {
@@ -89,7 +89,7 @@ const roomListReducers = (state = {
                 room_id:action.payload.room_id,
                 room_name:action.payload.room_name,
                 profile:action.payload.profile,
-                lastlog: {},
+                last_message: {},
                 unread:0
             };
             return Object.assign({}, state, {
@@ -101,7 +101,7 @@ const roomListReducers = (state = {
                 if(item.room_id === action.payload.room_id){
                     return {
                         ...item,
-                        lastlog: action.payload.lastlog,
+                        last_message: action.payload.last_message,
                         unread: item.unread+1
                     }
                 }
@@ -116,7 +116,7 @@ const roomListReducers = (state = {
                 if(item.room_id === action.payload.room_id){
                     return {
                         ...item,
-                        lastlog: action.payload.lastlog,
+                        last_message: action.payload.message,
                     }
                 }
                 return item;
@@ -127,7 +127,7 @@ const roomListReducers = (state = {
             });
         case READ_MESSAGE:
             const updateLogListRead = state.roomList.map(item => {
-                if(item.room_id === action.payload.room_id){
+                if(item.room_id === action.payload){
                     return {
                         ...item,
                         unread: 0

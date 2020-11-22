@@ -66,9 +66,9 @@ export function loadSelectedRoomApi(room_id,userToken) {
                 room_id:room_id,
                 token:userToken
               },
-            withCredentials: true
         });
         if(result.status === 200) {
+            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));

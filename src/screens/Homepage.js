@@ -21,6 +21,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import {loadRoom,loadPage,readMessage} from '../actions/actions';
 import {WebSocketContext} from '../websocket';
 import {logout} from '../api';
+import io from 'socket.io-client';
+
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -52,11 +54,11 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+
 export default function Homepage() {
   const classes = useStyles();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [typeMessage, setTypeMeesage] = React.useState("");
-  let history = useHistory();
   let auth = useAuth();
   
   const user = useSelector(state => state.userReducer);
@@ -64,6 +66,7 @@ export default function Homepage() {
   const selectedRoom = useSelector(state => state.selectedRoomReducer);
   const dispatch = useDispatch();
   const ws = useContext(WebSocketContext);
+  const date = new Date();
 
   const addModalOpen = () => {
       setModalOpen(true);
@@ -76,7 +79,6 @@ export default function Homepage() {
   const signOut = () => {
     auth.signout(async() => {
         await logout(auth.user);
-        history.push("/");
       });
   }
 
@@ -98,14 +100,24 @@ export default function Homepage() {
         ws.sendMessage(room_id,typeMessage);
   }
 
+  const transferTime = (timestamp) => {
+      const textDate = new Date(timestamp);
+      if(date.getYear() === textDate.getYear() 
+            && date.getMonth() === textDate.getMonth()
+            && date.getDate() === textDate.getDate()){
+            return `${textDate.getHours()}:${textDate.getMinutes()}`;
+        }else{
+            return `${textDate.getFullYear()}/${textDate.getMonth()+1}/${textDate.getDate()+1}`
+        }
+  }
 
   React.useEffect(async() => {
-    ws.socketConnect();
-    ws.socketInit(auth.user);
+    ws.socketConnect(auth.user);
     const response = await loadPage(auth.user);
     dispatch(response.loadUser());
     dispatch(response.loadRoomlist());
   },[]);
+
 
   return (
     <div className="root">
@@ -129,10 +141,11 @@ export default function Homepage() {
                                     avatar={"/static/images/avatar/1.jpg"}
                                     alt={item.room_name}
                                     title={item.room_name}
-                                    subtitle={item.nickname+":"+item.lastlog.text}
-                                    date={item.timestamp}
+                                    subtitle={item.last_message && (item.last_message.nickname+": "+item.last_message.text)}
+                                    date={item.last_message? new Date(item.last_message.timestamp):null}
                                     unread={item.unread} 
                                     onClick={() => handleSelectRoom(item.room_id)}
+                                    key={item.room_id}
                                 />
                             );
                         })}
@@ -149,7 +162,7 @@ export default function Homepage() {
                     <List>
                         {selectedRoom.chatLogs&&selectedRoom.chatLogs.map(item => {
                             return(
-                                <Message message={item} user={user.username}/>
+                                <Message message={item} user={user.username} key={item.username+item.timestamp}/>
                             );
                         })}
                     </List>
@@ -186,7 +199,7 @@ export default function Homepage() {
                     <List>
                         {selectedRoom.users&&selectedRoom.users.map(item => {
                             return(
-                                <Member user={item}/>
+                                <Member user={item} key={item.room_id}/>
                             );
                         })}
                     </List>

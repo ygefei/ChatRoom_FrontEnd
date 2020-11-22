@@ -37,6 +37,7 @@ export async function loadPage(userToken) {
                 loadUser: () => loadUser(user),
                 loadRoomlist:() => loadRoomlist(roomList)
             }
+
         }catch(error){
             console.log(error);
         }
@@ -186,8 +187,9 @@ export function otherLeaveRoom(payload) {
 
 
 export const READ_MESSAGE = "READ_MESSAGE";
-export function readMessage() {
+export function readMessage(payload) {
     return {
         type: READ_MESSAGE,
+        payload
     }
 }

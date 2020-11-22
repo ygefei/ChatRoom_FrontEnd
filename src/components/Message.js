@@ -16,6 +16,7 @@ export default function Message(props){
                     position={message.username === user? "right":"left"}
                     type={'text'}
                     text={message.text}
+                    date={new Date(message.timestamp)}
                 />
             </div>
         </div>

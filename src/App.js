@@ -27,7 +27,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <Navigation />
         </ThemeProvider>
-      </WebSocketProvider>
+        </WebSocketProvider>
     </Provider>
   );
 }
