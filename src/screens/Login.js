@@ -73,6 +73,7 @@ export default function Login() {
             id="outlined-basic" 
             label="Password" 
             variant="outlined" 
+            type="password"
             value={password} 
             onChange={(event) => setPassword(event.target.value)}
             error={passwordError}

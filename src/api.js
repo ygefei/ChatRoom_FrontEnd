@@ -21,15 +21,15 @@ export function login(username, password) {
     });
 }
 
-export function register(username, password, nickName) {
+export function register(username, nickname, password) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/signup`,
             data: {
               username:username,
+              nickname:nickname,
               password:password,
-              nickName:nickName
             }
         });
         if(result.status === 200) {

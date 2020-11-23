@@ -1,4 +1,4 @@
-import React,{useContext} from 'react';
+import React,{useContext,useRef} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import '../style/homepage.css';
 import Searchbar from '../components/Searchbar';
@@ -10,18 +10,16 @@ import Member from '../components/Member';
 import Message from '../components/Message';
 import ExitToAppSharpIcon from '@material-ui/icons/ExitToAppSharp';
 import AdjustIcon from '@material-ui/icons/Adjust';
-import { Input } from 'react-chat-elements';
-import { Button } from 'react-chat-elements'
 import { ChatItem } from 'react-chat-elements';
 import Paper from '@material-ui/core/Paper';
 import AddModal from '../components/AddModal';
-import {useHistory} from "react-router-dom";
 import {useAuth} from '../context';
-import { useSelector, useDispatch,useStore } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {logout} from '../api';
-import { debounce, throttle } from 'lodash';
 import {socket,socketConnect,sendMessageSocket,leaveRoomSocket} from '../socketUtil';
-import { loadRoom,readMessage,userLogOut,loadPage,otherjoinRoom} from '../actions/actions';
+import { loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
+import {TextComposer,Row,Fill,Fit,SendButton,TextInput}from '@livechat/ui-kit';
+import { debounce, throttle } from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -81,41 +79,42 @@ export default function Homepage() {
       });
   }
 
-  const handleSelectRoom = async(room_id,room_name) => {
-        try{
-            const response = await loadRoom(room_id,auth.user,room_name);
-            dispatch(response);
-            dispatch(readMessage(room_id));
-        }catch(error){
-            console.log(error);
-        }
-  }
+    const handleSelectRoom = async(room_id,room_name) => {
+            try{
+                const response = await loadRoom(room_id,auth.user,room_name);
+                dispatch(response);
+                dispatch(readMessage(room_id));
+            }catch(error){
+                console.log(error);
+            }
+    }
 
-  const handleLeaveRoom = (event) => {
-        event.preventDefault();
-        leaveRoomSocket(dispatch,selectedRoom.room_id);
-  } 
+    const handleLeaveRoom = (event) => {
+            event.preventDefault();
+            leaveRoomSocket(dispatch,selectedRoom.room_id);
+    } 
 
-  const sendMessage = (room_id) => {
-        const timestamp = new Date().toISOString();
-        sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,timestamp);
-  }
+    const sendMessage = (room_id) => {
+            const timestamp = new Date().toISOString();
+            sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,timestamp);
+    }
 
-  const delayedHandleChange = throttle(eventData => setTypeMeesage(eventData), 500);
+    const delayedHandleChange = debounce(eventData => setTypeMeesage(eventData.target.value), 500);
 
-  const handleInput = (event) => {
-    delayedHandleChange(event.target.value);
-  }
+    const handleInput = (e) => {
+        let eventData = { id: e.id, target: e.target };
+        delayedHandleChange(eventData);
+    }
 
 
-  React.useEffect(async() => {
-    socketConnect(auth.user,dispatch,selectedRoom.room_id);
-    const response = await loadPage(auth.user);
-    dispatch(response.loadUser());
-    dispatch(response.loadRoomlist());
+    React.useEffect(async() => {
+        socketConnect(auth.user,dispatch,selectedRoom.room_id);
+        const response = await loadPage(auth.user);
+        dispatch(response.loadUser());
+        dispatch(response.loadRoomlist());
 
-    return () => {socket.close()};
-  },[]);
+        return () => {socket.close()};
+    },[]);
 
   return (
     <div className="root">
@@ -166,18 +165,7 @@ export default function Homepage() {
                     </List>
                 </Paper>
                 <div className="centerFooter">
-                    {selectedRoom.room_id &&<Input
-                        placeholder="Type here..."
-                        multiline={true}
-                        rightButtons={
-                            <Button
-                                color='white'
-                                backgroundColor='#D36E35'
-                                text='Send'
-                                onClick={() => sendMessage(selectedRoom.room_id)}/>
-                        }
-                        onChange={handleInput}
-                    />}
+                    {selectedRoom.room_id && <TypeInput typeMessage={typeMessage} handleInput={handleInput} sendMessage={sendMessage} room_id={selectedRoom.room_id}/>}
                 </div>
             </div>
 
@@ -221,5 +209,21 @@ function EixtRoomButton(props) {
             </IconButton>
             <Typography>LEAVE ROOM</Typography>
         </div>
+    )
+}
+
+function TypeInput(props) {
+    const {handleInput,sendMessage,room_id, typeMessage} = props;
+    return(
+    <TextComposer onSend={() => sendMessage(room_id)} onChange={e => handleInput(e)} value={typeMessage}>
+			<Row align="center">
+				<Fill>
+					<TextInput />
+				</Fill>
+				<Fit>
+					<SendButton />
+				</Fit>
+				</Row>
+	</TextComposer>
     )
 }

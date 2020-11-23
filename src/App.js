@@ -3,6 +3,8 @@ import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
 import Navigation from './router';
 import { Provider } from 'react-redux';
 import store from './store/store';
+import { ThemeProvider as ChatThemeProvider } from '@livechat/ui-kit'
+
 
 const theme = createMuiTheme({
   palette: {
@@ -23,7 +25,9 @@ function App() {
   return (
     <Provider store={store}>
         <ThemeProvider theme={theme}>
-          <Navigation />
+          <ChatThemeProvider>
+            <Navigation />
+          </ChatThemeProvider>
         </ThemeProvider>
     </Provider>
   );

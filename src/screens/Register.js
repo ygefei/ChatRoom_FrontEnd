@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import '../style/register.css';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Profile from '../assets/profile.png';
 import ImageUploader from 'react-images-upload';
 import {useHistory} from "react-router-dom";
 import {register} from '../api';
@@ -25,32 +24,42 @@ export default function Register() {
   const classes = useStyles();
   const [username, setUsername] = React.useState('');
   const [usernameError, setUsernameError] = React.useState(false);
-  const [nickName, setNickName] = React.useState('');
-  const [nickNameError, setNickNameError] = React.useState(false);
+  const [nickname, setNickName] = React.useState('');
+  const [nicknameError, setNickNameError] = React.useState(false);
   const [password, setPassword] = React.useState('');
   const [passwordError, setPassWordError] = React.useState(false);
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
-  const [pictures, setPicture] = React.useState("");
+  const [pictures, setPicture] = React.useState([]);
   let history = useHistory();
 
   const onDrop = (picture) =>  {
-    setPicture(picture);
+    console.log(picture);
+    setPicture([...pictures,picture]);
   }
   
   const confirm = async() => {
     try{
+        if(pictures.length){
+          console.log(pictures);
+          return;
+        }
         setUsernameError(!username);
-        setNickNameError(!nickName);
+        setNickNameError(!nickname);
         setPassWordError(!password);
         setConfirmPasswordError(password !== confirmPassword);
-        if(username && nickName && password && password === confirmPassword){
-          await register(username,password,nickName);
+        if(username && nickname && password && password === confirmPassword){
+          console.log("true");
+          await register(username,nickname, password);
           history.push("/");
         }
     }catch(error){
       console.log(error);
     }
+  }
+
+  const uploadImage = () => {
+    
   }
 
   return (
@@ -72,9 +81,9 @@ export default function Register() {
                   id="outlined-basic" 
                   label="Nick name" 
                   variant="outlined" 
-                  value={nickName} 
+                  value={nickname} 
                   onChange={(event) => setNickName(event.target.value)}
-                  error={nickNameError}
+                  error={nicknameError}
                 />
                 <TextField 
                   className={classes.textField} 
@@ -82,6 +91,7 @@ export default function Register() {
                   label="Password" 
                   variant="outlined" 
                   value={password} 
+                  type="password"
                   onChange={(event) => setPassword(event.target.value)}
                   error={passwordError}
                 />
@@ -90,6 +100,7 @@ export default function Register() {
                   id="outlined-basic" 
                   label="Confirm password" 
                   variant="outlined" 
+                  type="password"
                   value={confirmPassword} 
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   error={confirmPasswordError}
