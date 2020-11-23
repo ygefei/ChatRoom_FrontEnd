@@ -17,11 +17,11 @@ import Paper from '@material-ui/core/Paper';
 import AddModal from '../components/AddModal';
 import {useHistory} from "react-router-dom";
 import {useAuth} from '../context';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch,useStore } from 'react-redux';
 import {logout} from '../api';
 import { debounce, throttle } from 'lodash';
 import {socket,socketConnect,sendMessageSocket,leaveRoomSocket} from '../socketUtil';
-import { loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
+import { loadRoom,readMessage,userLogOut,loadPage,otherjoinRoom} from '../actions/actions';
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -117,7 +117,6 @@ export default function Homepage() {
     return () => {socket.close()};
   },[]);
 
-
   return (
     <div className="root">
         <header></header>
@@ -126,7 +125,7 @@ export default function Homepage() {
                 <div className="leftHeader">
                     <h2>Chat Room</h2> 
                     <div className="searchAdd">
-                        <Searchbar socket={socket}/>
+                        <Searchbar />
                         <IconButton className={classes.addButton} onClick={addModalOpen}>
                             <AddCircleOutlineIcon/>
                         </IconButton>
@@ -140,8 +139,8 @@ export default function Homepage() {
                                     avatar={"/static/images/avatar/1.jpg"}
                                     alt={item.room_name}
                                     title={item.room_name}
-                                    subtitle={Object.keys(item.last_message).length? (item.last_message.nickname+": "+item.last_message.text):""}
-                                    date={Object.keys(item.last_message).length? new Date(item.last_message.timestamp):null}
+                                    subtitle={item.last_message&&Object.keys(item.last_message).length? (item.last_message.nickname+": "+item.last_message.text):""}
+                                    date={item.last_message&&Object.keys(item.last_message).length? new Date(item.last_message.timestamp):null}
                                     unread={item.unread} 
                                     onClick={() => handleSelectRoom(item.room_id,item.room_name)}
                                     key={item.room_id}
@@ -224,4 +223,3 @@ function EixtRoomButton(props) {
         </div>
     )
 }
-

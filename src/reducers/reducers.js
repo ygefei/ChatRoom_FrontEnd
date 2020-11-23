@@ -66,6 +66,7 @@ const userReducer = (state = {
 }
 
 const roomListReducers = (state = {
+    current_roomID: null,
     roomList: []
 }, action) => {
     switch(action.type) {
@@ -90,6 +91,7 @@ const roomListReducers = (state = {
             };
             return Object.assign({}, state, {
                 ...state,
+                current_roomID: action.payload.room_id,
                 roomList: [...state.roomList, new_room]
             });
         case MY_JOIN_ROOM_SUCCESS:
@@ -102,9 +104,11 @@ const roomListReducers = (state = {
             };
             return Object.assign({}, state, {
                 ...state,
+                current_roomID: action.payload.room_id,
                 roomList: [...state.roomList, join_new_room]
             });
         case UPDATE_ROOMLIST_LOG:
+            if(action.payload.room_id === state.current_roomID) return state;
             const updateLogList = state.roomList.map(item => {
                 if(item.room_id === action.payload.room_id){
                     return {
@@ -120,6 +124,7 @@ const roomListReducers = (state = {
                 roomList: updateLogList
             });
         case UPDATE_CURR_ROOM:
+            if(action.payload.room_id !== state.current_roomID) return state;
             const updateCurrRoom = state.roomList.map(item => {
                 if(item.room_id === action.payload.room_id){
                     return {
@@ -131,6 +136,7 @@ const roomListReducers = (state = {
             });
             return Object.assign({}, state, {
                 ...state,
+                current_roomID: action.payload.room_id,
                 roomList: updateCurrRoom
             });
         case READ_MESSAGE:
@@ -145,17 +151,20 @@ const roomListReducers = (state = {
             });
             return Object.assign({}, state, {
                 ...state,
+                current_roomID: action.payload,
                 roomList: updateLogListRead
             });
         case MY_LEAVE_ROOM_LIST:
             const leaveList = state.roomList.filter((item) => item.room_id !== action.payload);
             return Object.assign({}, state, {
                 ...state,
+                current_roomID: null,
                 roomList: leaveList
             });
         case USER_LOG_OUT:
             return Object.assign({},state,{
                     ...state,
+                    current_roomID: null,
                     roomList: []
                 });
         default:
@@ -180,9 +189,10 @@ const selectedRoomReducer = (state = {
                 users: action.payload.users,
             });
         case UPDATE_SELECTED_ROOM_LOG:
+            if(action.payload.room_id !== state.room_id) return state;
             return Object.assign({},state,{
                 ...state,
-                chatLogs:[...state.chatLogs,action.payload],
+                chatLogs:[...state.chatLogs,action.payload.message],
             });
         case MY_LEAVE_ROOM_SELECTED:
             return Object.assign({},state,{
@@ -193,11 +203,13 @@ const selectedRoomReducer = (state = {
                 users:[],
             });
         case OTHER_JOIN_ROOM_SUCCESS:
+            if(action.payload.room_id !== state.room_id) return state;
             return Object.assign({},state,{
                 ...state,
-                users: [...state.users,action.payload.user],
+                users: [...state.users,action.payload],
             });
         case OTHER_LEAVE_ROOM:
+            if(action.payload.room_id !== state.room_id) return state;
             const usersAfterLeave = state.users.filter((item) => item.username !== action.payload.username);
             return Object.assign({},state,{
                 ...state,

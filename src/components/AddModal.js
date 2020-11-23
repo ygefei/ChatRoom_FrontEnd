@@ -39,11 +39,11 @@ export default function AddModal(props) {
 
   const handleConfirm = async() => {
       try{
-        
-        const room_id = await createRoom(roomName,pictures,auth.user);
-        const responseRoom = await loadRoom(room_id,auth.user);
+        const room_id = await createRoom(roomName,auth.user)(dispatch);
+        const responseRoom = await loadRoom(room_id,auth.user,roomName);
         dispatch(responseRoom);
         onClose();
+        setRoomName("");
       }catch(error){
         console.log(error);
       }

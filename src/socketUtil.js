@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { updateCurrRoom, updateRoomListLog, updateSelectedRoomLog, myjoinRoom, loadRoom, myleaveRoomList, myleaveRoomSelected, otherjoinRoom, otherLeaveRoom } from './actions/actions';
 export let socket = null;
 
-export const socketConnect = (token,dispatch,selectRoomId) => {
+export const socketConnect = (token,dispatch) => {
     socket = io("https://comp426-chatroom.herokuapp.com");
     socket.on("connect", () => {
       socket.emit("init",token);
@@ -17,8 +17,8 @@ export const socketConnect = (token,dispatch,selectRoomId) => {
     });
 
     //listen message
-    socket.on("message", (data) => {
-        const room_id = data.room_id;
+    socket.on("message", async(data) => {
+        console.log(data);
         const timestamp = new Date(data.timestamp).toISOString();
         const message = {
             username:data.username,
@@ -26,36 +26,39 @@ export const socketConnect = (token,dispatch,selectRoomId) => {
             text:data.text,
             timestamp:timestamp
         }
-        if(room_id === selectRoomId){
-            dispatch(updateSelectedRoomLog(message));
-            dispatch(updateCurrRoom({
-                room_id:room_id,
-                last_message:message
-            }));
-        }else{
-            dispatch(updateRoomListLog({
-                room_id:room_id,
-                last_message:message
-            }));
-        }
+        dispatch(updateSelectedRoomLog({
+            room_id:data.room_id,
+            message:message
+        }));
+        await dispatch(updateCurrRoom({
+            room_id:data.room_id,
+            last_message:message
+        }));
+        dispatch(updateRoomListLog({
+            room_id:data.room_id,
+            last_message:message
+        }));
+        
     });
 
     //listen other join
     socket.on("join", (data) => {
-        const room_id = data.room_id;
-        const user = data.user;
-        if(room_id === selectRoomId){
-            dispatch(otherjoinRoom(user));
+        const user = {
+            room_id:data.room_id,
+            nickname:data.nickname,
+            username:data.username,
+            profile:data.profile
         }
+        dispatch(otherjoinRoom(user));
+        
     });
 
     //listen other leave
     socket.on("leave", (data) => {
-        const room_id = data.room_id;
-        const username = data.username;
-        if(room_id === selectRoomId){
-            dispatch(otherLeaveRoom(username));
-        }
+        dispatch(otherLeaveRoom({
+            room_id:data.room_id,
+            username:data.username
+        }));
     });
 }
 
@@ -63,10 +66,13 @@ export const socketConnect = (token,dispatch,selectRoomId) => {
 //send message
 export const sendMessageSocket = (dispatch,room_id,username,nickname,text,timestamp) => {
     dispatch(updateSelectedRoomLog({
-        username:username,  
-        nickname:nickname,
-        text:text,
-        timestamp:timestamp
+        room_id:room_id,
+        message:{
+            username:username,  
+            nickname:nickname,
+            text:text,
+            timestamp:timestamp
+        }
     }));
     dispatch(updateCurrRoom({
         room_id:room_id,

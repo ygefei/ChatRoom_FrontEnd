@@ -85,20 +85,18 @@ export function createRoomError(error){
     }
 }
 
-export function createRoom(room_name,profile,userToken) {
+export function createRoom(room_name,userToken) {
     return async function (dispatch) {
-        dispatch(createRoomRequest());
         try{
-            const response = await createChatRoom(room_name,profile,userToken);
+            const response = await createChatRoom(room_name,userToken);
             const payload = {
                 room_id: response.room_id,
                 room_name: room_name,
-                profile: profile
             }
             dispatch(createRoomSuccess(payload));
             return response.room_id;
         }catch(error){
-            dispatch(createRoomError(error));
+            console.log(error);
         }
     }
 }
@@ -115,6 +113,7 @@ export function myjoinRoomSuccess(payload){
 }
 
 export function otherjoinRoom(payload){
+    console.log(payload);
     return {
         type: OTHER_JOIN_ROOM_SUCCESS,
         payload

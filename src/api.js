@@ -94,18 +94,18 @@ export function logout(userToken) {
     });
 }
 
-export function createChatRoom(room_name,profile,userToken) {
+export function createChatRoom(room_name,userToken) {
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/chatroom/create`,
             data: {
               room_name:room_name,
-              profile:profile,
               token:userToken
             }
         });
         if(result.status === 200) {
+            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));

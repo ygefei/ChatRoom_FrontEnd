@@ -30,22 +30,21 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Searchbar(props) {
-  const {socket} = props;
+export default function Searchbar() {
   const classes = useStyles();
-  const [joinRoomId, setjoinRoomId] = React.useState();
+  const [joinRoomId, setjoinRoomId] = React.useState("");
   let auth = useAuth();
   let dispatch = useDispatch();
 
 
-  const handleJoinRoom = async(event) => {
+  const handleJoinRoom = (event) => {
       event.preventDefault();
       if(!joinRoomId){
         alert("You should input room id!");
         return;
       }
-      await joinRoomSocket(dispatch,joinRoomId,auth.user);
-      setjoinRoomId();
+      joinRoomSocket(dispatch,joinRoomId,auth.user);
+      setjoinRoomId("");
   }
 
 
