@@ -50,6 +50,7 @@ export function loadHomepage(userToken) {
             }
         });
         if(result.status === 200) {
+            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));
@@ -124,6 +125,7 @@ export function joinChatRoom(room_id,userToken) {
             }
         });
         if(result.status === 200) {
+            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));

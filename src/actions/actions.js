@@ -44,10 +44,14 @@ export async function loadPage(userToken) {
     
 }
 
-export async function loadRoom(room_id,userToken){
+export async function loadRoom(room_id,userToken,room_name){
     try{
         const response = await loadSelectedRoomApi(room_id,userToken);
-        return loadSelectedRoom(response);
+        return loadSelectedRoom({
+            ...response,
+            room_id:room_id,
+            room_name:room_name
+        });
     }catch(error){
         console.log(error);
     }
@@ -122,10 +126,13 @@ export async function myjoinRoom(room_id,userToken) {
         const response = await joinChatRoom(room_id,userToken);
         const payload = {
             room_id: room_id,
-            room_name: response.room_name,
-            profile: response.profile
+            room_name: response.room.room_name,
+            profile: response.room.profile
         }
-        return myjoinRoomSuccess(payload);
+        return {
+            action:myjoinRoomSuccess(payload),
+            room_name:response.room.room_name
+        };
     }catch(error){
         console.log(error);
     }
@@ -134,13 +141,13 @@ export async function myjoinRoom(room_id,userToken) {
 
 
 export const UPDATE_CURR_ROOM = "UPDATE_CURR_ROOM";
-export const UPDATE_ROOMLIST_LOG = "UPDATE_CURR_ROOM";
+export const UPDATE_ROOMLIST_LOG = "UPDATE_ROOMLIST_LOG";
 export const UPDATE_SELECTED_ROOM_LOG = "UPDATE_SELECTED_ROOM_LOG";
 
 
 export function updateCurrRoom(payload) {
     return {
-        type: UPDATE_ROOMLIST_LOG,
+        type: UPDATE_CURR_ROOM,
         payload
     }
 }
@@ -191,5 +198,13 @@ export function readMessage(payload) {
     return {
         type: READ_MESSAGE,
         payload
+    }
+}
+
+
+export const USER_LOG_OUT = "USER_LOG_OUT"
+export function userLogOut() {
+    return {
+        type: USER_LOG_OUT,
     }
 }

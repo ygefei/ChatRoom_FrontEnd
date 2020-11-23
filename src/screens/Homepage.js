@@ -18,11 +18,10 @@ import AddModal from '../components/AddModal';
 import {useHistory} from "react-router-dom";
 import {useAuth} from '../context';
 import { useSelector, useDispatch } from 'react-redux';
-import {loadRoom,loadPage,readMessage} from '../actions/actions';
-import {WebSocketContext} from '../websocket';
 import {logout} from '../api';
-import io from 'socket.io-client';
-
+import { debounce, throttle } from 'lodash';
+import {socket,socketConnect,sendMessageSocket,leaveRoomSocket} from '../socketUtil';
+import { loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -59,14 +58,13 @@ export default function Homepage() {
   const classes = useStyles();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [typeMessage, setTypeMeesage] = React.useState("");
+  
   let auth = useAuth();
   
   const user = useSelector(state => state.userReducer);
   const roomList = useSelector(state => state.roomListReducers.roomList);
   const selectedRoom = useSelector(state => state.selectedRoomReducer);
   const dispatch = useDispatch();
-  const ws = useContext(WebSocketContext);
-  const date = new Date();
 
   const addModalOpen = () => {
       setModalOpen(true);
@@ -77,14 +75,15 @@ export default function Homepage() {
   }
 
   const signOut = () => {
+    dispatch(userLogOut());
     auth.signout(async() => {
         await logout(auth.user);
       });
   }
 
-  const handleSelectRoom = async(room_id) => {
+  const handleSelectRoom = async(room_id,room_name) => {
         try{
-            const response = await loadRoom(room_id,auth.user);
+            const response = await loadRoom(room_id,auth.user,room_name);
             dispatch(response);
             dispatch(readMessage(room_id));
         }catch(error){
@@ -92,30 +91,30 @@ export default function Homepage() {
         }
   }
 
-  const handleLeaveRoom = (room_id) => {
-        ws.leaveRoom(room_id);
+  const handleLeaveRoom = (event) => {
+        event.preventDefault();
+        leaveRoomSocket(dispatch,selectedRoom.room_id);
   } 
 
   const sendMessage = (room_id) => {
-        ws.sendMessage(room_id,typeMessage);
+        const timestamp = new Date().toISOString();
+        sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,timestamp);
   }
 
-  const transferTime = (timestamp) => {
-      const textDate = new Date(timestamp);
-      if(date.getYear() === textDate.getYear() 
-            && date.getMonth() === textDate.getMonth()
-            && date.getDate() === textDate.getDate()){
-            return `${textDate.getHours()}:${textDate.getMinutes()}`;
-        }else{
-            return `${textDate.getFullYear()}/${textDate.getMonth()+1}/${textDate.getDate()+1}`
-        }
+  const delayedHandleChange = throttle(eventData => setTypeMeesage(eventData), 500);
+
+  const handleInput = (event) => {
+    delayedHandleChange(event.target.value);
   }
+
 
   React.useEffect(async() => {
-    ws.socketConnect(auth.user);
+    socketConnect(auth.user,dispatch,selectedRoom.room_id);
     const response = await loadPage(auth.user);
     dispatch(response.loadUser());
     dispatch(response.loadRoomlist());
+
+    return () => {socket.close()};
   },[]);
 
 
@@ -127,7 +126,7 @@ export default function Homepage() {
                 <div className="leftHeader">
                     <h2>Chat Room</h2> 
                     <div className="searchAdd">
-                        <Searchbar />
+                        <Searchbar socket={socket}/>
                         <IconButton className={classes.addButton} onClick={addModalOpen}>
                             <AddCircleOutlineIcon/>
                         </IconButton>
@@ -141,10 +140,10 @@ export default function Homepage() {
                                     avatar={"/static/images/avatar/1.jpg"}
                                     alt={item.room_name}
                                     title={item.room_name}
-                                    subtitle={item.last_message && (item.last_message.nickname+": "+item.last_message.text)}
-                                    date={item.last_message? new Date(item.last_message.timestamp):null}
+                                    subtitle={Object.keys(item.last_message).length? (item.last_message.nickname+": "+item.last_message.text):""}
+                                    date={Object.keys(item.last_message).length? new Date(item.last_message.timestamp):null}
                                     unread={item.unread} 
-                                    onClick={() => handleSelectRoom(item.room_id)}
+                                    onClick={() => handleSelectRoom(item.room_id,item.room_name)}
                                     key={item.room_id}
                                 />
                             );
@@ -162,7 +161,7 @@ export default function Homepage() {
                     <List>
                         {selectedRoom.chatLogs&&selectedRoom.chatLogs.map(item => {
                             return(
-                                <Message message={item} user={user.username} key={item.username+item.timestamp}/>
+                                <Message message={item} user={user.username} key={item.username+item.timestamp+Math.random()}/>
                             );
                         })}
                     </List>
@@ -178,7 +177,7 @@ export default function Homepage() {
                                 text='Send'
                                 onClick={() => sendMessage(selectedRoom.room_id)}/>
                         }
-                        onChange={(event) => setTypeMeesage(event.target.value)}
+                        onChange={handleInput}
                     />}
                 </div>
             </div>
@@ -199,14 +198,12 @@ export default function Homepage() {
                     <List>
                         {selectedRoom.users&&selectedRoom.users.map(item => {
                             return(
-                                <Member user={item} key={item.room_id}/>
+                                <Member user={item} key={item.username}/>
                             );
                         })}
                     </List>
                 </Paper>
-                <div className="rightFooter">
-                    {selectedRoom.room_id&&<EixtRoomButton handleLeaveRoom={handleLeaveRoom} room_id={selectedRoom.room_id}/>}
-                </div>
+                {selectedRoom.room_id&&<EixtRoomButton handleLeaveRoom={handleLeaveRoom}/>}
             </div>
             <AddModal onClose={addModalClose} modalOpen={modalOpen}/>
         </div>
@@ -216,11 +213,11 @@ export default function Homepage() {
 
 
 function EixtRoomButton(props) {
-    const{handleLeaveRoom, room_id} = {props};
+    const{ handleLeaveRoom } = props;
     const classes = useStyles();
     return(
-        <div>
-            <IconButton className={classes.leave} onClick={() => handleLeaveRoom(room_id)}>
+        <div className="rightFooter" >
+            <IconButton className={classes.leave} onClick={(event) => handleLeaveRoom(event)}>
                     <ExitToAppSharpIcon />  
             </IconButton>
             <Typography>LEAVE ROOM</Typography>

@@ -4,8 +4,9 @@ import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
-import {WebSocketContext} from '../websocket';
 import {useAuth} from '../context';
+import {joinRoomSocket} from '../socketUtil';
+import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,12 +30,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Searchbar() {
+export default function Searchbar(props) {
+  const {socket} = props;
   const classes = useStyles();
   const [joinRoomId, setjoinRoomId] = React.useState();
   let auth = useAuth();
+  let dispatch = useDispatch();
 
-  const ws = useContext(WebSocketContext);
 
   const handleJoinRoom = async(event) => {
       event.preventDefault();
@@ -42,7 +44,7 @@ export default function Searchbar() {
         alert("You should input room id!");
         return;
       }
-      await ws.joinRoom(joinRoomId,auth.user);
+      await joinRoomSocket(dispatch,joinRoomId,auth.user);
       setjoinRoomId();
   }
 

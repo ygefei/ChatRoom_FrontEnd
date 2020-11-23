@@ -11,6 +11,7 @@ import {createRoom, loadRoom} from '../actions/actions';
 import {useDispatch} from 'react-redux';
 import {useAuth} from '../context';
 
+
 const useStyles = makeStyles((theme) => ({
     textField: {
       borderColor: theme.palette.primary.main,
@@ -38,6 +39,7 @@ export default function AddModal(props) {
 
   const handleConfirm = async() => {
       try{
+        
         const room_id = await createRoom(roomName,pictures,auth.user);
         const responseRoom = await loadRoom(room_id,auth.user);
         dispatch(responseRoom);

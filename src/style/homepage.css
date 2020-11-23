@@ -111,12 +111,18 @@ div .centerHeader {
     border-bottom-style: solid; 
     border-width: 1px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
 .centerHeader h2 {
     color: #707070;
+}
+
+.centerHeader p {
+    align-self:flex-end;
+    padding-right: 20px;
 }
 
 div .centerFooter {

@@ -11,7 +11,8 @@ import {
     MY_LEAVE_ROOM_LIST,
     OTHER_LEAVE_ROOM,
     UPDATE_CURR_ROOM,
-    READ_MESSAGE
+    READ_MESSAGE,
+    USER_LOG_OUT
 } from '../actions/actions';
 import { combineReducers } from 'redux';
 
@@ -26,14 +27,14 @@ import { combineReducers } from 'redux';
 //             room_id:1,
 //             room_name:"COMP 426",
 //             profile:"",
-//             lastlog: {},
+//             lastlog: {username,nickname,text,timestamp},
 //             unread:0
 //         }
 //     ],
 //     selectedChatRoom: {
 //         room_id:1,
 //         room_name:"COMP 426",
-//         chatLogs: [{username,nickname,timestamp}],
+//         chatLogs: [{username,nickname,text,timestamp}],
 //         users:[{nickname,profile}],
 //     }
     
@@ -52,6 +53,13 @@ const userReducer = (state = {
                 nickname:action.payload.nickname,
                 profile:action.payload.profile,
             });
+        case USER_LOG_OUT:
+            return Object.assign({},state,{
+                        ...state,
+                        username:"",
+                        nickname:"",
+                        profile:"",
+                });
         default:
             return state;
     }
@@ -116,7 +124,7 @@ const roomListReducers = (state = {
                 if(item.room_id === action.payload.room_id){
                     return {
                         ...item,
-                        last_message: action.payload.message,
+                        last_message: action.payload.last_message,
                     }
                 }
                 return item;
@@ -140,11 +148,16 @@ const roomListReducers = (state = {
                 roomList: updateLogListRead
             });
         case MY_LEAVE_ROOM_LIST:
-            const leaveList = state.roomList.filter((item) => item.room_id !== action.payload.room_id);
+            const leaveList = state.roomList.filter((item) => item.room_id !== action.payload);
             return Object.assign({}, state, {
                 ...state,
                 roomList: leaveList
             });
+        case USER_LOG_OUT:
+            return Object.assign({},state,{
+                    ...state,
+                    roomList: []
+                });
         default:
             return state;
     }
@@ -163,13 +176,13 @@ const selectedRoomReducer = (state = {
                 ...state,
                 room_id:action.payload.room_id,
                 room_name:action.payload.room_name,
-                chatLogs:action.payload.chatLogs,
+                chatLogs:action.payload.messages,
                 users: action.payload.users,
             });
         case UPDATE_SELECTED_ROOM_LOG:
             return Object.assign({},state,{
                 ...state,
-                chatLogs:[...state.chatLogs,action.payload.chatLogs],
+                chatLogs:[...state.chatLogs,action.payload],
             });
         case MY_LEAVE_ROOM_SELECTED:
             return Object.assign({},state,{
@@ -189,6 +202,14 @@ const selectedRoomReducer = (state = {
             return Object.assign({},state,{
                 ...state,
                 users: usersAfterLeave,
+            });
+        case USER_LOG_OUT:
+            return Object.assign({},state,{
+                ...state,
+                room_id:null,
+                room_name:"",
+                chatLogs: [],
+                users:[],
             });
         default:
             return state;

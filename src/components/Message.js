@@ -7,18 +7,39 @@ import { Avatar } from '@material-ui/core';
 export default function Message(props){
     const {message, user} = props;
 
-    return(
-        <div style={{display: "flex", justifyContent:"start", alignItems: "center", padding:"20px"}}>
-            <Avatar alt={message.nickname} src="/static/images/avatar/1.jpg"/>
-            <div style={{margin:"23px 0 0 0"}}>
-                <p style={{margin:"0 0 0 10px"}}>{message.nickname}</p>
-                <MessageBox
-                    position={message.username === user? "right":"left"}
-                    type={'text'}
-                    text={message.text}
-                    date={new Date(message.timestamp)}
-                />
+
+    if(message.username !== user){
+        return(
+            <div style={{display: "flex", justifyContent:"flex-start", alignItems: "center", padding:"20px"}}>
+                <Avatar alt={message.nickname} src="/static/images/avatar/1.jpg"/>
+                <div style={{margin:"23px 0 0 0"}}>
+                    <p style={{margin:"0 0 0 10px"}}>{message.nickname}</p>
+                    <MessageBox
+                        position={message.username === user? "right":"left"}
+                        type={'text'}
+                        text={message.text}
+                        date={new Date(message.timestamp)}
+                    />
+                </div>
             </div>
-        </div>
-    );
+        );
+    }else{
+        return(
+            <div style={{display: "flex", justifyContent:"flex-end", alignItems: "center", padding:"20px"}}>
+                <div style={{display: "flex", flexDirection:"column", justifyContent:"flex-end", alignItems: "center", margin:"23px 5px 0 0"}}> 
+                    <p style={{margin:"0 0 0 10px",alignSelf:"flex-end"}}>{message.nickname}</p>
+                    <MessageBox
+                        position={message.username === user? "right":"left"}
+                        type={'text'}
+                        text={message.text}
+                        date={new Date(message.timestamp)}
+                        
+                    />
+                </div>
+                <Avatar alt={message.nickname} src="/static/images/avatar/1.jpg"/>
+            </div>
+        );
+    }
+
+    
 }
