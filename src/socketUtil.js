@@ -8,22 +8,14 @@ export const socketConnect = (token,dispatch) => {
       socket.emit("init",token);
     });
 
-    socket.on('init', (data) => {
-        console.log(data);
-    });
-
-    socket.on('err', (data) => {
-        console.log(data);
-    });
-
     //listen message
     socket.on("message", async(data) => {
-        console.log(data);
         const timestamp = new Date(data.timestamp).toISOString();
         const message = {
             username:data.username,
             nickname:data.nickname,
             text:data.text,
+            profile:data.profile,
             timestamp:timestamp
         }
         dispatch(updateSelectedRoomLog({
@@ -32,11 +24,21 @@ export const socketConnect = (token,dispatch) => {
         }));
         await dispatch(updateCurrRoom({
             room_id:data.room_id,
-            last_message:message
+            last_message:{
+                username:data.username,
+                nickname:data.nickname,
+                text:data.text,
+                timestamp:timestamp
+            }
         }));
         dispatch(updateRoomListLog({
             room_id:data.room_id,
-            last_message:message
+            last_message:{
+                username:data.username,
+                nickname:data.nickname,
+                text:data.text,
+                timestamp:timestamp
+            }
         }));
         
     });
@@ -64,13 +66,14 @@ export const socketConnect = (token,dispatch) => {
 
 
 //send message
-export const sendMessageSocket = (dispatch,room_id,username,nickname,text,timestamp) => {
+export const sendMessageSocket = (dispatch,room_id,username,nickname,text,profile,timestamp) => {
     dispatch(updateSelectedRoomLog({
         room_id:room_id,
         message:{
             username:username,  
             nickname:nickname,
             text:text,
+            profile:profile,
             timestamp:timestamp
         }
     }));
@@ -98,7 +101,7 @@ export const joinRoomSocket = async (dispatch,room_id,userToken) => {
         dispatch(roomResponse);
         socket.emit("join", room_id);
     } catch(error){
-        console.log(error);
+        alert("Error");
     }    
 }
 

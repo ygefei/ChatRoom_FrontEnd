@@ -35,7 +35,7 @@ import { combineReducers } from 'redux';
 //         room_id:1,
 //         room_name:"COMP 426",
 //         chatLogs: [{username,nickname,text,timestamp}],
-//         users:[{nickname,profile}],
+//         users:[{nickname,username,profile}],
 //     }
     
 // }
@@ -55,10 +55,10 @@ const userReducer = (state = {
             });
         case USER_LOG_OUT:
             return Object.assign({},state,{
-                        ...state,
-                        username:"",
-                        nickname:"",
-                        profile:"",
+                    ...state,
+                    username:"",
+                    nickname:"",
+                    profile:"",
                 });
         default:
             return state;
@@ -189,10 +189,11 @@ const selectedRoomReducer = (state = {
                 users: action.payload.users,
             });
         case UPDATE_SELECTED_ROOM_LOG:
+            console.log(action.payload.message);
             if(action.payload.room_id !== state.room_id) return state;
             return Object.assign({},state,{
                 ...state,
-                chatLogs:[...state.chatLogs,action.payload.message],
+                chatLogs:[...state.chatLogs,{...action.payload.message}],
             });
         case MY_LEAVE_ROOM_SELECTED:
             return Object.assign({},state,{

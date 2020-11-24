@@ -1,4 +1,4 @@
-import React,{useContext}from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import '../style/login.css';
 import TextField from '@material-ui/core/TextField';
@@ -6,8 +6,6 @@ import Button from '@material-ui/core/Button';
 import {useAuth} from '../context';
 import {useHistory} from "react-router-dom";
 import {login} from '../api';
-
-
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -20,7 +18,6 @@ const useStyles = makeStyles((theme) => ({
     height: 35
   }
 }));
-
 
 
 export default function Login() {
@@ -44,10 +41,9 @@ export default function Login() {
         });
       }
     }catch(error){
+      alert("User is unvalid. Please check email and password. Or Use another account.");
       console.log(error);
     }
-
-    
   };
 
   const toRegister = () => {

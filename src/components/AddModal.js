@@ -26,7 +26,7 @@ export default function AddModal(props) {
 
   const [roomName, setRoomName] = React.useState("");
   const [error, setError] = React.useState(false);
-  const [pictures, setPictures] = React.useState("");
+  const [pictures, setPictures] = React.useState([]);
   const {onClose, modalOpen} = props;
   let auth = useAuth();
 
@@ -39,18 +39,24 @@ export default function AddModal(props) {
 
   const handleConfirm = async() => {
       try{
-        const room_id = await createRoom(roomName,auth.user)(dispatch);
-        const responseRoom = await loadRoom(room_id,auth.user,roomName);
-        dispatch(responseRoom);
-        onClose();
-        setRoomName("");
+        setError(!roomName);
+        if(roomName&&pictures.length){
+          const room_id = await createRoom(roomName,pictures,auth.user)(dispatch);
+          const responseRoom = await loadRoom(room_id,auth.user,roomName);
+          dispatch(responseRoom);
+          onClose();
+          setRoomName("");
+          setPictures([]);
+        }else{
+          alert("Some field is unvalid.");
+        }
       }catch(error){
         console.log(error);
       }
   }
 
   const onDrop = (picture) =>  {
-    setPictures(picture);
+    setPictures([...pictures,picture]);
   }
 
   return (
@@ -73,8 +79,10 @@ export default function AddModal(props) {
                     withPreview={true} 
                     buttonText='Choose Room Avatar'
                     onChange={onDrop}
-                    maxFileSize={5242880}
+                    maxFileSize={1048576}
                     singleImage={true}
+                    imgExtension={['.jpg', '.jpeg', '.png']}
+                    label={'Max file size: 1MB, accepted: jpg, jpeg, png'}
                 />
             </div>
         </DialogContent>

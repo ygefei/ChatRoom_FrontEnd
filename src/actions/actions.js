@@ -39,7 +39,7 @@ export async function loadPage(userToken) {
             }
 
         }catch(error){
-            console.log(error);
+            alert(Error);
         }
     
 }
@@ -53,7 +53,7 @@ export async function loadRoom(room_id,userToken,room_name){
             room_name:room_name
         });
     }catch(error){
-        console.log(error);
+        alert(Error);
     }
 }
 
@@ -85,18 +85,19 @@ export function createRoomError(error){
     }
 }
 
-export function createRoom(room_name,userToken) {
+export function createRoom(room_name,profile,userToken) {
     return async function (dispatch) {
         try{
-            const response = await createChatRoom(room_name,userToken);
+            const response = await createChatRoom(room_name,profile,userToken);
             const payload = {
                 room_id: response.room_id,
-                room_name: room_name,
+                room_name: response.room_name,
+                profile:response.profile
             }
             dispatch(createRoomSuccess(payload));
             return response.room_id;
         }catch(error){
-            console.log(error);
+            alert(Error);
         }
     }
 }
@@ -133,7 +134,7 @@ export async function myjoinRoom(room_id,userToken) {
             room_name:response.room.room_name
         };
     }catch(error){
-        console.log(error);
+        alert(Error);
     }
 }
 

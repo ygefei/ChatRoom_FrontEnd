@@ -19,7 +19,8 @@ import {logout} from '../api';
 import {socket,socketConnect,sendMessageSocket,leaveRoomSocket} from '../socketUtil';
 import { loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
 import {TextComposer,Row,Fill,Fit,SendButton,TextInput}from '@livechat/ui-kit';
-import { debounce, throttle } from 'lodash';
+import { debounce, throttle} from 'lodash';
+import {API_BASE} from '../api';
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -50,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
     }
 
 }));
+
 
 
 export default function Homepage() {
@@ -94,11 +96,6 @@ export default function Homepage() {
             leaveRoomSocket(dispatch,selectedRoom.room_id);
     } 
 
-    const sendMessage = (room_id) => {
-            const timestamp = new Date().toISOString();
-            sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,timestamp);
-    }
-
     const delayedHandleChange = debounce(eventData => setTypeMeesage(eventData.target.value), 500);
 
     const handleInput = (e) => {
@@ -106,6 +103,12 @@ export default function Homepage() {
         delayedHandleChange(eventData);
     }
 
+    const delayedSubmit = debounce((room_id,timestamp) => sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,user.profile,timestamp), 800);
+
+    const sendMessage = (room_id) => {
+        const timestamp = new Date().toISOString();
+        delayedSubmit(room_id,timestamp);
+    }
 
     React.useEffect(async() => {
         socketConnect(auth.user,dispatch,selectedRoom.room_id);
@@ -135,7 +138,7 @@ export default function Homepage() {
                         {roomList&&roomList.map(item => {
                             return(
                                 <ChatItem
-                                    avatar={"/static/images/avatar/1.jpg"}
+                                    avatar={`${API_BASE}/${item.profile}`}
                                     alt={item.room_name}
                                     title={item.room_name}
                                     subtitle={item.last_message&&Object.keys(item.last_message).length? (item.last_message.nickname+": "+item.last_message.text):""}
@@ -172,7 +175,7 @@ export default function Homepage() {
             <div className="right">
                 <div className="rightHeader">
                     <div className="profile">
-                        <Avatar className={classes.avatar} alt={user.nickname} src="/static/images/avatar/1.jpg"/>
+                        <Avatar className={classes.avatar} alt={user.nickname} src={`${API_BASE}/${user.profile}`}/>
                         <div>
                             <h3>{user.nickname}</h3>
                         </div>

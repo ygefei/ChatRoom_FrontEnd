@@ -2,7 +2,7 @@
 import { MessageBox } from 'react-chat-elements'
 import 'react-chat-elements/dist/main.css';
 import { Avatar } from '@material-ui/core';
-
+import {API_BASE} from '../api';
 
 export default function Message(props){
     const {message, user} = props;
@@ -11,7 +11,7 @@ export default function Message(props){
     if(message.username !== user){
         return(
             <div style={{display: "flex", justifyContent:"flex-start", alignItems: "center", padding:"20px"}}>
-                <Avatar alt={message.nickname} src="/static/images/avatar/1.jpg"/>
+                <Avatar alt={message.nickname} src={`${API_BASE}/${message.profile}`}/>
                 <div style={{margin:"23px 0 0 0"}}>
                     <p style={{margin:"0 0 0 10px"}}>{message.nickname}</p>
                     <MessageBox
@@ -36,7 +36,7 @@ export default function Message(props){
                         
                     />
                 </div>
-                <Avatar alt={message.nickname} src="/static/images/avatar/1.jpg"/>
+                <Avatar alt={message.nickname} src={`${API_BASE}/${message.profile}`}/>
             </div>
         );
     }

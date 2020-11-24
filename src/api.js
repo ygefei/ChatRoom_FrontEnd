@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = "https://comp426-chatroom.herokuapp.com";
+export const API_BASE = "https://comp426-chatroom.herokuapp.com";
 
 export function login(username, password) {
     return new Promise(async(resolve,reject) => {
@@ -21,16 +21,19 @@ export function login(username, password) {
     });
 }
 
-export function register(username, nickname, password) {
+export function register(username, nickname, password, pictures) {
+    const formData = new FormData();
+    formData.append('username',username);
+    formData.append('nickname',nickname);
+    formData.append('password',password);
+    formData.append('file', pictures[pictures.length-1][0]);
+
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/signup`,
-            data: {
-              username:username,
-              nickname:nickname,
-              password:password,
-            }
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData
         });
         if(result.status === 200) {
             resolve();
@@ -50,7 +53,6 @@ export function loadHomepage(userToken) {
             }
         });
         if(result.status === 200) {
-            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));
@@ -66,7 +68,7 @@ export function loadSelectedRoomApi(room_id,userToken) {
             data: {
                 room_id:room_id,
                 token:userToken
-              },
+            },
         });
         if(result.status === 200) {
             console.log(result.data);
@@ -94,24 +96,27 @@ export function logout(userToken) {
     });
 }
 
-export function createChatRoom(room_name,userToken) {
+export function createChatRoom(room_name,profile,userToken) {
+
+    const formData = new FormData();
+    formData.append('room_name',room_name);
+    formData.append('file', profile[profile.length-1][0]);
+    formData.append('token', userToken);
+
+
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',
             url: `${API_BASE}/chatroom/create`,
-            data: {
-              room_name:room_name,
-              token:userToken
-            }
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData
         });
         if(result.status === 200) {
-            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));
         }
     });
-    
 }
 
 export function joinChatRoom(room_id,userToken) {
@@ -125,7 +130,6 @@ export function joinChatRoom(room_id,userToken) {
             }
         });
         if(result.status === 200) {
-            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));

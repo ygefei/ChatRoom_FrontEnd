@@ -30,37 +30,32 @@ export default function Register() {
   const [passwordError, setPassWordError] = React.useState(false);
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
-  const [pictures, setPicture] = React.useState([]);
+  const [pictures, setPictures] = React.useState([]);
+
   let history = useHistory();
 
   const onDrop = (picture) =>  {
-    console.log(picture);
-    setPicture([...pictures,picture]);
+    setPictures([...pictures,picture]);
   }
   
   const confirm = async() => {
     try{
-        if(pictures.length){
-          console.log(pictures);
-          return;
-        }
         setUsernameError(!username);
         setNickNameError(!nickname);
         setPassWordError(!password);
         setConfirmPasswordError(password !== confirmPassword);
-        if(username && nickname && password && password === confirmPassword){
-          console.log("true");
-          await register(username,nickname, password);
+        if(username && nickname && password && password === confirmPassword && pictures.length){
+          await register(username,nickname, password, pictures);
+          setPictures([]);
           history.push("/");
+        }else{
+          alert("Some field is unvalid.");
         }
     }catch(error){
       console.log(error);
     }
   }
 
-  const uploadImage = () => {
-    
-  }
 
   return (
     <div className="root">
@@ -109,10 +104,12 @@ export default function Register() {
             <div className="imageUpload">
               <ImageUploader 
                   style={{ maxWidth: '500px', margin: "20px 20px" }}
+                  imgExtension={['.jpg', '.jpeg', '.png']}
+                  label={'Max file size: 1MB, accepted: jpg, jpeg, png'}
                   withPreview={true} 
                   buttonText='Choose Avatar'
                   onChange={onDrop}
-                  maxFileSize={5242880}
+                  maxFileSize={1048576}
                   singleImage={true}
               />
             </div>
