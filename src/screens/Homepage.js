@@ -1,4 +1,4 @@
-import React,{useContext,useRef} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import '../style/homepage.css';
 import Searchbar from '../components/Searchbar';
@@ -16,11 +16,12 @@ import AddModal from '../components/AddModal';
 import {useAuth} from '../context';
 import { useSelector, useDispatch } from 'react-redux';
 import {logout} from '../api';
-import {socket,socketConnect,sendMessageSocket,leaveRoomSocket} from '../socketUtil';
-import { loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
-import {TextComposer,Row,Fill,Fit,SendButton,TextInput}from '@livechat/ui-kit';
-import { debounce, throttle} from 'lodash';
+import {socket,socketConnect,leaveRoomSocket} from '../socketUtil';
+import {loadRoom,readMessage,userLogOut,loadPage} from '../actions/actions';
 import {API_BASE} from '../api';
+import TypeInput from '../components/TypeInput';
+import Messages from '../components/Messages';
+
 
 const useStyles = makeStyles((theme) => ({
     addButton: {
@@ -39,7 +40,6 @@ const useStyles = makeStyles((theme) => ({
     },
     messageList: {
         height: '78vh',
-        overflow: 'auto',
     },
     chatList: {
         height: '78vh',
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Homepage() {
   const classes = useStyles();
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [typeMessage, setTypeMeesage] = React.useState("");
+
   
   let auth = useAuth();
   
@@ -96,19 +96,6 @@ export default function Homepage() {
             leaveRoomSocket(dispatch,selectedRoom.room_id);
     } 
 
-    const delayedHandleChange = debounce(eventData => setTypeMeesage(eventData.target.value), 500);
-
-    const handleInput = (e) => {
-        let eventData = { id: e.id, target: e.target };
-        delayedHandleChange(eventData);
-    }
-
-    const delayedSubmit = debounce((room_id,timestamp) => sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,user.profile,timestamp), 800);
-
-    const sendMessage = (room_id) => {
-        const timestamp = new Date().toISOString();
-        delayedSubmit(room_id,timestamp);
-    }
 
     React.useEffect(async() => {
         socketConnect(auth.user,dispatch,selectedRoom.room_id);
@@ -158,17 +145,13 @@ export default function Homepage() {
                     <h2>{selectedRoom.room_name}</h2>
                     {selectedRoom.room_id&&<p>Room ID: {selectedRoom.room_id}</p>}
                 </div>
-                <Paper className={classes.messageList} elevation={0}>
-                    <List>
-                        {selectedRoom.chatLogs&&selectedRoom.chatLogs.map(item => {
-                            return(
-                                <Message message={item} user={user.username} key={item.username+item.timestamp+Math.random()}/>
-                            );
-                        })}
-                    </List>
-                </Paper>
+                <div style={{height:"76vh"}}>
+                    {
+                        selectedRoom.chatLogs&& <Messages chatLogs={selectedRoom.chatLogs} user={user}/>
+                    }
+                </div> 
                 <div className="centerFooter">
-                    {selectedRoom.room_id && <TypeInput typeMessage={typeMessage} handleInput={handleInput} sendMessage={sendMessage} room_id={selectedRoom.room_id}/>}
+                    {selectedRoom.room_id && <TypeInput room_id={selectedRoom.room_id} dispatch={dispatch} user={user}/>}
                 </div>
             </div>
 
@@ -212,21 +195,5 @@ function EixtRoomButton(props) {
             </IconButton>
             <Typography>LEAVE ROOM</Typography>
         </div>
-    )
-}
-
-function TypeInput(props) {
-    const {handleInput,sendMessage,room_id, typeMessage} = props;
-    return(
-    <TextComposer onSend={() => sendMessage(room_id)} onChange={e => handleInput(e)} value={typeMessage}>
-			<Row align="center">
-				<Fill>
-					<TextInput />
-				</Fill>
-				<Fit>
-					<SendButton />
-				</Fit>
-				</Row>
-	</TextComposer>
     )
 }

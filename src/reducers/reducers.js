@@ -189,7 +189,6 @@ const selectedRoomReducer = (state = {
                 users: action.payload.users,
             });
         case UPDATE_SELECTED_ROOM_LOG:
-            console.log(action.payload.message);
             if(action.payload.room_id !== state.room_id) return state;
             return Object.assign({},state,{
                 ...state,

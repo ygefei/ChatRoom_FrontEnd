@@ -13,7 +13,6 @@ export function login(username, password) {
             }
         });
         if(result.status === 200) {
-            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));
@@ -71,7 +70,6 @@ export function loadSelectedRoomApi(room_id,userToken) {
             },
         });
         if(result.status === 200) {
-            console.log(result.data);
             resolve(result.data);
         }else{
             reject(new Error(result.statusText));

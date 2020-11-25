@@ -7,7 +7,6 @@ import {API_BASE} from '../api';
 export default function Message(props){
     const {message, user} = props;
 
-
     if(message.username !== user){
         return(
             <div style={{display: "flex", justifyContent:"flex-start", alignItems: "center", padding:"20px"}}>
