@@ -101,7 +101,6 @@ export function createChatRoom(room_name,profile,userToken) {
     formData.append('file', profile[profile.length-1][0]);
     formData.append('token', userToken);
 
-
     return new Promise(async(resolve,reject) => {
         const result = await axios({
             method: 'post',

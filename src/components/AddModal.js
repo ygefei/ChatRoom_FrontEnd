@@ -10,7 +10,8 @@ import TextField from '@material-ui/core/TextField';
 import {createRoom, loadRoom} from '../actions/actions';
 import {useDispatch} from 'react-redux';
 import {useAuth} from '../context';
-
+import {joinRoomSocket} from '../socketUtil';
+import {createChatRoom} from '../api';
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -41,9 +42,10 @@ export default function AddModal(props) {
       try{
         setError(!roomName);
         if(roomName&&pictures.length){
-          const room_id = await createRoom(roomName,pictures,auth.user)(dispatch);
-          const responseRoom = await loadRoom(room_id,auth.user,roomName);
-          dispatch(responseRoom);
+          const response = await createChatRoom(roomName,pictures,auth.user);
+          // const responseRoom = await loadRoom(room_id,auth.user,roomName);
+          // dispatch(responseRoom);
+          joinRoomSocket(dispatch,response.room_id,auth.user);
           onClose();
           setRoomName("");
           setPictures([]);

@@ -108,9 +108,9 @@ const roomListReducers = (state = {
                 roomList: [...state.roomList, join_new_room]
             });
         case UPDATE_ROOMLIST_LOG:
-            if(action.payload.room_id === state.current_roomID) return state;
+            if(action.payload.room_id == state.current_roomID) return state;
             const updateLogList = state.roomList.map(item => {
-                if(item.room_id === action.payload.room_id){
+                if(item.room_id == action.payload.room_id){
                     return {
                         ...item,
                         last_message: action.payload.last_message,
@@ -124,24 +124,27 @@ const roomListReducers = (state = {
                 roomList: updateLogList
             });
         case UPDATE_CURR_ROOM:
-            if(action.payload.room_id !== state.current_roomID) return state;
-            const updateCurrRoom = state.roomList.map(item => {
-                if(item.room_id === action.payload.room_id){
-                    return {
-                        ...item,
-                        last_message: action.payload.last_message,
+            if(action.payload.room_id == state.current_roomID) {
+                const updateCurrRoom = state.roomList.map(item => {
+                    if(item.room_id == action.payload.room_id){
+                        return {
+                            ...item,
+                            last_message: action.payload.last_message,
+                        }
                     }
-                }
-                return item;
-            });
-            return Object.assign({}, state, {
-                ...state,
-                current_roomID: action.payload.room_id,
-                roomList: updateCurrRoom
-            });
+                    return item;
+                });
+                return Object.assign({}, state, {
+                    ...state,
+                    current_roomID: action.payload.room_id,
+                    roomList: updateCurrRoom
+                });
+            }
+            return state;
+            
         case READ_MESSAGE:
             const updateLogListRead = state.roomList.map(item => {
-                if(item.room_id === action.payload){
+                if(item.room_id == action.payload){
                     return {
                         ...item,
                         unread: 0
@@ -189,11 +192,13 @@ const selectedRoomReducer = (state = {
                 users: action.payload.users,
             });
         case UPDATE_SELECTED_ROOM_LOG:
-            if(action.payload.room_id !== state.room_id) return state;
-            return Object.assign({},state,{
-                ...state,
-                chatLogs:[...state.chatLogs,{...action.payload.message}],
-            });
+            if(action.payload.room_id == state.room_id) {
+                return Object.assign({},state,{
+                    ...state,
+                    chatLogs:[...state.chatLogs,{...action.payload.message}],
+                });
+            }
+            return state;   
         case MY_LEAVE_ROOM_SELECTED:
             return Object.assign({},state,{
                 ...state,
@@ -203,18 +208,22 @@ const selectedRoomReducer = (state = {
                 users:[],
             });
         case OTHER_JOIN_ROOM_SUCCESS:
-            if(action.payload.room_id !== state.room_id) return state;
-            return Object.assign({},state,{
-                ...state,
-                users: [...state.users,action.payload],
-            });
+            if(action.payload.room_id == state.room_id) {
+                return Object.assign({},state,{
+                    ...state,
+                    users: [...state.users,action.payload],
+                });
+            }
+            return state;   
         case OTHER_LEAVE_ROOM:
-            if(action.payload.room_id !== state.room_id) return state;
-            const usersAfterLeave = state.users.filter((item) => item.username !== action.payload.username);
-            return Object.assign({},state,{
-                ...state,
-                users: usersAfterLeave,
-            });
+            if(action.payload.room_id == state.room_id) {
+                const usersAfterLeave = state.users.filter((item) => item.username !== action.payload.username);
+                return Object.assign({},state,{
+                    ...state,
+                    users: usersAfterLeave,
+                });
+            }
+            return state;
         case USER_LOG_OUT:
             return Object.assign({},state,{
                 ...state,

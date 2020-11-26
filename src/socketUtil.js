@@ -10,6 +10,8 @@ export const socketConnect = (token,dispatch) => {
 
     //listen message
     socket.on("message", async(data) => {
+        console.log(data);
+        console.log(dispatch);
         const timestamp = new Date(data.timestamp).toISOString();
         const message = {
             username:data.username,
@@ -18,7 +20,7 @@ export const socketConnect = (token,dispatch) => {
             profile:data.profile,
             timestamp:timestamp
         }
-        dispatch(updateSelectedRoomLog({
+        await dispatch(updateSelectedRoomLog({
             room_id:data.room_id,
             message:message
         }));
@@ -66,8 +68,8 @@ export const socketConnect = (token,dispatch) => {
 
 
 //send message
-export const sendMessageSocket = (dispatch,room_id,username,nickname,text,profile,timestamp) => {
-    dispatch(updateSelectedRoomLog({
+export const sendMessageSocket = async (dispatch,room_id,username,nickname,text,profile,timestamp) => {
+    await dispatch(updateSelectedRoomLog({
         room_id:room_id,
         message:{
             username:username,  
@@ -106,8 +108,8 @@ export const joinRoomSocket = async (dispatch,room_id,userToken) => {
 }
 
  //leave room
-export const leaveRoomSocket = (dispatch,room_id) => {
-    dispatch(myleaveRoomList(room_id));
+export const leaveRoomSocket = async (dispatch,room_id) => {
+    await dispatch(myleaveRoomList(room_id));
     dispatch(myleaveRoomSelected());
     socket.emit("leave", room_id);
 }

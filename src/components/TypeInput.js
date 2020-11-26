@@ -18,13 +18,14 @@ export default function TypeInput(props) {
 
     const delayedSubmit = debounce((room_id,timestamp) => sendMessageSocket(dispatch,room_id,user.username,user.nickname,typeMessage,user.profile,timestamp), 500);
 
-    const sendMessage = (room_id) => {
+    const sendMessage = () => {
         const timestamp = new Date().toISOString();
+        // delayedSubmit(room_id,timestamp);
         delayedSubmit(room_id,timestamp);
     } 
 
     return(
-    <TextComposer onSend={() => sendMessage(room_id)} onChange={e => handleInput(e)} value={typeMessage}>
+    <TextComposer onSend={sendMessage} onChange={e => handleInput(e)} value={typeMessage}>
 			<Row align="center">
 				<Fill>
 					<TextInput />
